@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include <iostream>
 #include <map>
+#include <math.h>
+#include <random>
 #include <unistd.h>
 using namespace std;
 
@@ -10,29 +12,34 @@ int screen_h = 450;
 int screen_w = 450;
 int p_x = screen_w / 2;
 int p_y = screen_h / 2;
-int length = 10;
+int a_x;
+int a_y;
+int length = 3;
 char dir = 'w';
 map<int, tuple<int, int>> pos;
 
 void drawShit();
+void spawn();
 bool update();
 
 int main(void) {
   pos[0] = {p_x, p_y};
 
-  // Test code for messing with Collision logic and shit
-  if (length > 1) {
-    for (int i = 1; i < length - 1; i++) {
-      pos[i] = tuple(get<0>(pos[0]), get<1>(pos[0]) + (25 * i));
-    }
-  }
+  spawn();
 
-  SetTargetFPS(5);
+  // Test code for messing with Collision logic and shit
+  // if (length > 1) {
+  //   for (int i = 1; i < length - 1; i++) {
+  //     pos[i] = tuple(get<0>(pos[0]), get<1>(pos[0]) + (25 * i));
+  //   }
+  // }
+
+  SetTargetFPS(7);
   InitWindow(screen_w, screen_h, "snake");
 
   while (true) {
 
-    // Check if collided with anything
+    // Check if collided with anything and update shit
     if (update()) {
       return 0;
     }
@@ -44,6 +51,22 @@ int main(void) {
   }
 
   return 0;
+}
+
+void spawn() {
+
+  // Create a random device to seed the generator
+  random_device rd;
+
+  // Use Mersenne Twister engine
+  mt19937 gen(rd());
+
+  // Define a range (e.g., 1 to 100)
+  uniform_int_distribution<int> gay(0, 450);
+
+  // Get random number // 25 and round down to get number thats divisible by 25
+  a_x = floor(gay(gen) / 25) * 25;
+  a_y = floor(gay(gen) / 25) * 25;
 }
 
 bool update() {
@@ -85,15 +108,15 @@ bool update() {
   }
 
   // Updating the tail
-  if (length > 1) {
+  if (length > 0) {
     for (int i = length - 1; i > 0; i--) {
       pos[i] = pos[i - 1];
     }
   }
 
   // If Snake hits border it's gonna die
-  if (get<0>(pos[0]) == 450 or get<1>(pos[0]) == 450 or get<0>(pos[0]) == 0 or
-      get<1>(pos[0]) == 0) {
+  if (get<0>(pos[0]) > 450 or get<1>(pos[0]) > 450 or get<0>(pos[0]) < 0 or
+      get<1>(pos[0]) < 0) {
 
     return true;
   }
@@ -106,7 +129,11 @@ bool update() {
     }
   }
 
-  //               TODO: MAKE FUCKING APPLES
+  // If touching apple then length + 1
+  if (get<0>(pos[0]) == a_x and get<1>(pos[0]) == a_y) {
+    length += 1;
+    spawn();
+  }
 
   return false;
 }
@@ -119,4 +146,6 @@ void drawShit() {
   for (int i = 0; i <= length - 1; i++) {
     DrawRectangle(get<0>(pos[i]), get<1>(pos[i]), 25, 25, GREEN);
   }
+
+  DrawRectangle(a_x, a_y, 25, 25, RED);
 }
