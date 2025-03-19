@@ -143,9 +143,9 @@ void drawShit() {
   // Just drawing shit
   ClearBackground({0, 0, 0, 255});
 
+  DrawRectangle(a_x, a_y, 25, 25, RED);
+
   for (int i = 0; i <= length - 1; i++) {
     DrawRectangle(get<0>(pos[i]), get<1>(pos[i]), 25, 25, GREEN);
   }
-
-  DrawRectangle(a_x, a_y, 25, 25, RED);
 }
